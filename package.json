@@ -1,0 +1,22 @@
+{
+  "name": "iverification",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Abdulkerim Jemal",
+  "license": "ISC",
+  "dependencies": {
+    "jsonld-signatures": "^6.0.0",
+    "jszip": "^3.10.0",
+    "path": "^0.12.7",
+    "security-context": "^4.0.0",
+    "vc-js": "^0.6.4"
+  },
+  "devDependencies": {
+    "esbuild": "^0.14.48"
+  }
+}
