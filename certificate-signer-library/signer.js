@@ -1,8 +1,6 @@
 const jsigs = require('jsonld-signatures');
-const {RsaSignature2018} = jsigs.suites;
-const {Ed25519Signature2018} = jsigs.suites;
+
 const {Ed25519KeyPair} = require('crypto-ld');
-const {AssertionProofPurpose} = jsigs.purposes;
 const {RSAKeyPair} = require('crypto-ld');
 const {documentLoaders} = require('jsonld');
 const {node: documentLoader} = documentLoaders;
@@ -16,11 +14,8 @@ documentLoaderMapping["https://www.w3.org/2018/credentials/v1"] = credentialsv1;
 
 let publicKey = {};
 let controller = {};
-let privateKeyPem = '';
-let maxRetrycount = 0;
 let certificateDID = '';
 let publicKeyBase58 = '';
-let privateKeyBase58 = '';
 const KeyType = {
   RSA: "RSA",
   ED25519: "ED25519"
@@ -56,7 +51,6 @@ const setDocumentLoader = (customLoaderMapping, config) => {
         '@context': jsigs.SECURITY_CONTEXT_URL,
         id: config.CERTIFICATE_CONTROLLER_ID,
         publicKey: [publicKey],
-        // this authorizes this key to be used for making assertions
         assertionMethod: [publicKey.id]
     };
     documentLoaderMapping[config.CERTIFICATE_DID] = publicKey;
@@ -87,44 +81,6 @@ const customLoader = url => {
   return documentLoader()(url);
 };
 
-
-async function signJSON(certificate) {
-  let signed = "";
-  if(signingKeyType === KeyType.RSA) {
-    const key = new RSAKeyPair({...publicKey, privateKeyPem});
-
-    signed = await jsigs.sign(certificate, {
-      documentLoader: customLoader,
-      suite: new RsaSignature2018({key}),
-      purpose: new AssertionProofPurpose({
-        controller: controller
-      }),
-      compactProof: false
-    });
-  } else if (signingKeyType === KeyType.ED25519) {
-    const key = new Ed25519KeyPair(
-        {
-            publicKeyBase58: publicKeyBase58,
-            privateKeyBase58: privateKeyBase58,
-            id: certificateDID
-        }
-    );
-    const purpose = new AssertionProofPurpose({
-        controller: controller
-    });
-
-    signed = await vc.issue({
-        credential: certificate,
-        suite: new Ed25519Signature2018({key}),
-        purpose: purpose,
-        documentLoader: customLoader,
-        compactProof: false
-    });
-  }
-  console.info("Signed cert " + JSON.stringify(signed));
-
-  return signed;
-}
 
 async function verifyJSON(signedJSON) {
   const {AssertionProofPurpose} = jsigs.purposes;
@@ -163,9 +119,7 @@ async function verifyJSON(signedJSON) {
 }
 
 module.exports = {
-  signJSON,
   verifyJSON,
   customLoader,
   setDocumentLoader,
-  KeyType
 };
