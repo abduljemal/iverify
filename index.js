@@ -20,7 +20,7 @@ async function verifyData(data) {
     try {
         const unZippedData = await unzipData(data)
         const signedJson = JSON.parse(unZippedData)
-        const result = await verifyJSON(signedJson).then(result => {
+      return  await verifyJSON(signedJson).then(result => {
             if (result.verified)
                 return { verified: true, data: signedJson.credentialSubject }
             return { verified: false, data: {} }
@@ -29,5 +29,3 @@ async function verifyData(data) {
            return { verified: false, data: {} }
     }
 }
-
-
